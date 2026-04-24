@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: whatsapp-ai-saas
+    runtime: node
+    plan: standard
+    buildCommand: npm ci --legacy-peer-deps --include=dev && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: npm_config_omit
+        value: optional
+      - key: PORT
+        value: 3000
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: AI_REPLY_MAX_PER_MINUTE
+        value: 30
+      - key: AI_MEMORY_MAX_MESSAGES
+        value: 30
+    healthCheckPath: /health
+    healthCheckInterval: 30
+    maxInstances: 1
+    minInstances: 1
+    headers:
+      - path: /*
+        name: Strict-Transport-Security
+        value: max-age=31536000; includeSubDomains
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-XSS-Protection
+        value: 1; mode=block
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin

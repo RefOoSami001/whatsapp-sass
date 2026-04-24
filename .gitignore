@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+*.log
+.DS_Store
+auth_info_baileys/
+.cursor/
+agent-transcripts/
+terminals/

@@ -1,0 +1,80 @@
+# Node.js dependencies
+node_modules
+npm-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.example
+
+# Build output
+dist
+build
+*.tsbuildinfo
+
+# Source maps (optional: keep for debugging)
+*.map
+
+# Version control
+.git
+.gitignore
+.github
+
+# Documentation
+README.md
+DEPLOYMENT.md
+docs/
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Testing
+coverage
+.nyc_output
+jest.config.js
+
+# Postman collections
+postman/
+
+# Logs
+logs
+*.log
+
+# Temporary files
+tmp
+temp
+.cache
+
+# OS files
+Thumbs.db
+
+# Docker files (don't include in image)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# CI/CD
+.github/workflows
+.gitlab-ci.yml
+.travis.yml
+
+# Keys and credentials
+*.key
+*.pem
+*.crt
+
+# Database backups
+*.dump
+*.sql
+backup/

@@ -1,0 +1,111 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:8.0
+    container_name: whatsapp_saas_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: whatsapp_saas
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/init-user.sh:/docker-entrypoint-initdb.d/init-user.sh:ro
+    networks:
+      - whatsapp_saas_network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Optional: MongoDB Express UI for database management
+  mongo-express:
+    image: mongo-express:latest
+    container_name: whatsapp_saas_mongo_express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: root
+      ME_CONFIG_MONGODB_URL: mongodb://root:root@mongodb:27017/
+      ME_CONFIG_BASICAUTH: "false"
+    depends_on:
+      - mongodb
+    networks:
+      - whatsapp_saas_network
+    profiles:
+      - debug # Only run with: docker-compose --profile debug up
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: whatsapp_saas_backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      MONGO_URI: mongodb://app_user:app_password@mongodb:27017/whatsapp_saas?authSource=whatsapp_saas
+      JWT_SECRET: dev-secret-change-in-production-min-32-chars-required
+      ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      AI_REPLY_MAX_PER_MINUTE: 30
+      AI_MEMORY_MAX_MESSAGES: 30
+      CORS_ORIGIN: "http://localhost:3000,http://localhost:3001,http://localhost:5173"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - whatsapp_saas_network
+    healthcheck:
+      test: curl -f http://localhost:3000/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      # Mount source code for hot-reload during development
+      - ./src:/app/src
+      - ./dist:/app/dist
+    command: npm run dev # Uses nodemon for auto-restart
+
+networks:
+  whatsapp_saas_network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local
+
+# Usage:
+#
+# Start all services:
+#   docker-compose up -d
+#
+# Start with MongoDB UI (Mongo Express):
+#   docker-compose --profile debug up -d
+#
+# View logs:
+#   docker-compose logs -f backend
+#   docker-compose logs -f mongodb
+#
+# Stop all services:
+#   docker-compose down
+#
+# Remove volumes (CAUTION: deletes database):
+#   docker-compose down -v
+#
+# Rebuild images after code changes:
+#   docker-compose build --no-cache
+#
+# Access services:
+#   Backend: http://localhost:3000
+#   Backend API Docs: http://localhost:3000/api/docs
+#   MongoDB Express: http://localhost:8081 (if --profile debug used)
+#   MongoDB: mongodb://app_user:app_password@localhost:27017/whatsapp_saas
