@@ -14,9 +14,9 @@ export type AgentPromptProfile = {
 
 export const OPENROUTER_MODEL_FALLBACKS: readonly string[] = [
 // 'openrouter/elephant-alpha',
+  'nvidia/nemotron-3-super-120b-a12b:free',
   'google/gemma-4-26b-a4b-it:free',
   'google/gemma-4-31b-it:free',
-  'nvidia/nemotron-3-super-120b-a12b:free',
   'nvidia/nemotron-3-nano-30b-a3b:free',
   'qwen/qwen3-next-80b-a3b-instruct:free',
   'minimax/minimax-m2.5:free',
